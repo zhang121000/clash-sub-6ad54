@@ -1,0 +1,68 @@
+mixed-port: 7890
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+
+proxies:
+  - name: RAK-CN2-VLESS-Reality
+    type: vless
+    server: 107.148.152.2
+    port: 443
+    uuid: ff52969a-ef31-4392-b36d-f3da147e5c6f
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: www.microsoft.com
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: _VfVfTku2t9PJ0dNVLZbo34tC8gTvLmz7Sqj_wMV_w4
+      short-id: bbaef0b59308769b
+
+  - name: RAK-CN2-Hysteria2
+    type: hysteria2
+    server: 107.148.152.2
+    port: 443
+    password: 6LLfChHWlZFvfToLx5Fe64RAWpRzj9nx
+    sni: www.microsoft.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - AUTO
+      - RAK-CN2-Hysteria2
+      - RAK-CN2-VLESS-Reality
+      - DIRECT
+  - name: AUTO
+    type: url-test
+    url: https://cp.cloudflare.com/generate_204
+    interval: 180
+    tolerance: 80
+    proxies:
+      - RAK-CN2-Hysteria2
+      - RAK-CN2-VLESS-Reality
+
+rules:
+  - MATCH,PROXY
